@@ -15,37 +15,41 @@ public class TasksTest {
 	private static ChromeOptions options;	
 	private WebElement element;		
 	
-	@BeforeAll
-	public static void setup() {
+	public WebDriver setup() {
 		WebDriverManager.chromedriver().setup();
 		options = new ChromeOptions();		
 		options.addArguments("--start-maximized");
 		options.addArguments("--incognito");
 		driver = new ChromeDriver(options);
+		driver.get("http://localhost:8001/tasks/");
+		return driver;
 	}
 	
 	@BeforeEach
 	public void go() {		
-		driver.get("http://localhost:8001/tasks/");
-	}
+		driver = setup();		
+	}	
 	
-	@AfterAll
-	public static void tearDown() {
-		driver.quit();				
+	@AfterEach
+	public void tearDown() {
+	    driver.quit();
 	}
 	
 	@Test
-	public void deveValidarMenssagemDaTagP() {
+	public void deveValidarMenssagemDaTagP() {	    
 		element = driver.findElement(By.cssSelector("p[class=\"lead\"]"));
-		assertEquals("A very simple task management tool", element.getText());
+		assertEquals("A very simple task management tool", element.getText());		
 	}
 	
 	@Test
-	public void deveSalvarTaskComSucesso() {		
+	public void deveSalvarTaskComSucesso() throws InterruptedException {
+	    Thread.sleep(2000);
 		driver.findElement(By.id("addTodo")).click();
 		driver.findElement(By.cssSelector("input[id=\"task\"]")).sendKeys("Teste via Selenium");
 		driver.findElement(By.cssSelector("input[id=\"dueDate\"]")).sendKeys("14/11/2033");
-		driver.findElement(By.cssSelector("input[id=\"saveButton\"]")).click();		
+		driver.findElement(By.cssSelector("input[id=\"saveButton\"]")).click();
+		element = driver.findElement(By.cssSelector("p[class=\"alert alert-success\"]"));
+		assertEquals("Success!", element.getText());		
 	}
 	
 	@Test
@@ -55,7 +59,7 @@ public class TasksTest {
 		driver.findElement(By.cssSelector("input[id=\"dueDate\"]")).sendKeys("14/11/2010");
 		driver.findElement(By.cssSelector("input[id=\"saveButton\"]")).click();
 		element = driver.findElement(By.cssSelector("[class=\"alert alert-danger\"]"));		
-		assertEquals("Due date must not be in past", element.getText());
+		assertEquals("Due date must not be in past", element.getText());		
 	}
 	
 	@Test
@@ -65,7 +69,7 @@ public class TasksTest {
 		driver.findElement(By.cssSelector("input[id=\"dueDate\"]")).sendKeys("14/11/2010");
 		driver.findElement(By.cssSelector("input[id=\"saveButton\"]")).click();
 		element = driver.findElement(By.cssSelector("[class=\"alert alert-danger\"]"));		
-		assertEquals("Fill the task description", element.getText());
+		assertEquals("Fill the task description", element.getText());		
 	}
 	
 	@Test
@@ -75,6 +79,6 @@ public class TasksTest {
 		driver.findElement(By.cssSelector("input[id=\"dueDate\"]")).sendKeys("");
 		driver.findElement(By.cssSelector("input[id=\"saveButton\"]")).click();
 		element = driver.findElement(By.cssSelector("[class=\"alert alert-danger\"]"));		
-		assertEquals("Fill the due date", element.getText());
+		assertEquals("Fill the due date", element.getText());		
 	}
 }

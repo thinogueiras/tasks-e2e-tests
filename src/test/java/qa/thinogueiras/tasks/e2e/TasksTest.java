@@ -2,6 +2,9 @@ package qa.thinogueiras.tasks.e2e;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+import java.util.Random;
+
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -13,7 +16,19 @@ public class TasksTest {
 	
 	private static WebDriver driver;
 	private static ChromeOptions options;	
-	private WebElement element;		
+	private WebElement element;
+	
+	public String getTextRecordFromTable(String record) {	    
+	    List<WebElement> lines = driver.findElements(By.xpath("//table//tr//td"));	    
+	    String text = "0";
+	    for(int i = 0; i < lines.size(); i++) {	        
+	        if(lines.get(i).getText().equals(record)) {	            
+	            text = record;
+	            break;
+	        }
+	    }
+	    return text;	  
+	}
 	
 	public WebDriver setup() {
 		WebDriverManager.chromedriver().setup();
@@ -42,14 +57,15 @@ public class TasksTest {
 	}
 	
 	@Test
-	public void deveSalvarTaskComSucesso() throws InterruptedException {
-	    Thread.sleep(2000);
+	public void deveSalvarTaskComSucesso() {	    
 		driver.findElement(By.id("addTodo")).click();
-		driver.findElement(By.cssSelector("input[id=\"task\"]")).sendKeys("Teste via Selenium");
+		String sendText = "Teste via Selenium " + new Random().nextInt();
+		driver.findElement(By.cssSelector("input[id=\"task\"]")).sendKeys(sendText);
 		driver.findElement(By.cssSelector("input[id=\"dueDate\"]")).sendKeys("14/11/2033");
 		driver.findElement(By.cssSelector("input[id=\"saveButton\"]")).click();
-		element = driver.findElement(By.cssSelector("p[class=\"alert alert-success\"]"));
+		element = driver.findElement(By.cssSelector("p[class=\"alert alert-success\"]"));		
 		assertEquals("Success!", element.getText());		
+		assertEquals(sendText, getTextRecordFromTable(sendText));
 	}
 	
 	@Test
